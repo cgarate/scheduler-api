@@ -24,7 +24,7 @@ function updateAppointment(id, interview) {
         JSON.stringify({
           type: "SET_INTERVIEW",
           id,
-          interview
+          interview,
         })
       );
     }
