@@ -15,13 +15,13 @@ module.exports = (db, updateAppointment) => {
       LEFT JOIN interviews ON interviews.appointment_id = appointments.id
       GROUP BY appointments.id, interviews.id, interviews.student, interviews.interviewer_id
       ORDER BY appointments.id
-    `
+    `,
     ).then(({ rows: appointments }) => {
       response.json(
         appointments.reduce(
           (previous, current) => ({ ...previous, [current.id]: current }),
-          {}
-        )
+          {},
+        ),
       );
     });
   });
@@ -40,30 +40,26 @@ module.exports = (db, updateAppointment) => {
       ON CONFLICT (appointment_id) DO
       UPDATE SET student = $1::text, interviewer_id = $2::integer
     `,
-      [student, interviewer, Number(request.params.id)]
+      [student, interviewer, Number(request.params.id)],
     )
       .then(() => {
-        setTimeout(() => {
-          response.status(204).json({});
-          updateAppointment(Number(request.params.id), request.body.interview);
-        }, 1000);
+        response.status(204).json({});
+        updateAppointment(Number(request.params.id), request.body.interview);
       })
       .catch(error => console.log(error));
   });
 
   router.delete("/appointments/:id", (request, response) => {
     if (process.env.TEST_ERROR) {
-      setTimeout(() => response.status(500).json({}), 1000);
+      response.status(500).json({});
       return;
     }
 
     db.query(`DELETE FROM interviews WHERE appointment_id = $1::integer`, [
-      request.params.id
+      request.params.id,
     ]).then(() => {
-      setTimeout(() => {
-        response.status(204).json({});
-        updateAppointment(Number(request.params.id), null);
-      }, 1000);
+      response.status(204).json({});
+      updateAppointment(Number(request.params.id), null);
     });
   });
 
